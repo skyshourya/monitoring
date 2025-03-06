@@ -46,20 +46,20 @@ Modify the `nginx.conf` file to enable stub_status:
 # inside the http {} 
 server {
     listen 80;
-	server_name 13.201.81.35; # EC2 instance IP
+	server_name xx.xx.xx.xx; # EC2 instance IP
 
 	location /metrics {
             proxy_pass http://13.201.57.151:9090/metrics;  # Corrected service URL
-            allow 13.201.57.151;
-            allow 13.201.81.35;  # Allow access from your IP or specific range
+            allow xx.xx.xx.xx;
+            allow xx.xx.xx.xx;  # Allow access from your IP or specific range
             deny all;  # Deny all other access
         } 
         
         location /nginx_status {
             stub_status;
-            allow 13.201.57.151;  # Allow Prometheus server to access the status page
-            allow 13.201.81.35;
-	    allow 127.0.0.1;
+            allow xx.xx.xx.xx;  # Allow Prometheus server to access the status page
+            allow xx.xx.xx.xx;   # IP's which are allowed to access the status page 
+	    allow <local_host_IP>;
 	    deny all;
 	   
         }
