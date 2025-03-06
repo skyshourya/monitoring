@@ -43,6 +43,7 @@ services:
 ### 3. Configure Nginx for Monitoring
 Modify the `nginx.conf` file to enable stub_status:
 ```nginx
+# inside the http {} 
 server {
     listen 80;
 	server_name 13.201.81.35; # EC2 instance IP
