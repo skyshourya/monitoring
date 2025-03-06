@@ -4,7 +4,7 @@ Nginx Monitoring with Prometheus, Grafana, and Alertmanager
 # Nginx Monitoring with Prometheus, Grafana, and Alertmanager
 
 ## Overview
-This setup provides real-time monitoring for an Nginx server using 'Nginx_exporter', Prometheus, and Grafana. It also includes Alertmanager for sending notifications to Slack when Nginx or the EC2 instance goes down.
+This setup provides real-time monitoring for an Nginx server using `nginx_exporter`, Prometheus, and Grafana. It also includes Alertmanager for sending notifications to Slack when Nginx or the EC2 instance goes down.
 
 ## Components Used
 - **Prometheus**: Collects and stores metrics.
@@ -15,7 +15,7 @@ This setup provides real-time monitoring for an Nginx server using 'Nginx_export
 ## Prerequisites
 - An Ubuntu-based EC2 instance.
 - Docker and Docker Compose installed.
-- Nginx installed and running.
+- **Nginx installed and running.***
 
 ## Setup Instructions
 
@@ -25,10 +25,20 @@ sudo apt update
 sudo apt install -y docker.io docker-compose
 ```
 
-### 2. Clone the Repository
+### 2. Docker Compose Configuration on the host where nginx is running
+
+Create a `docker-compose.yml` file with the following content:
 ```bash
-git clone https://github.com/your-repo/nginx-monitoring.git
-cd nginx-monitoring
+version: '3.8'
+services:
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:latest
+    container_name: nginx-exporter
+    command:
+      - "--nginx.scrape-uri=http://<HOST_IP>/nginx_status"
+    ports:
+      - "9113:9113"
+    restart: always
 ```
 
 ### 3. Configure Nginx for Monitoring
@@ -59,6 +69,52 @@ server {
 Restart Nginx:
 ```bash
 sudo systemctl restart nginx
+```
+### 4. Docker Compose Configuration on the host where Prometheus, Grafana, and Alertmanager will be running.
+Create a `docker-compose.yml` file with the following content:
+```bash
+version: '3.8'
+
+services:
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./alert.rules.yml:/etc/prometheus/alert.rules.yml
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    ports:
+      - "9090:9090"
+    depends_on:
+      - alertmanager
+
+  alertmanager:
+    image: prom/alertmanager
+    container_name: alertmanager
+    volumes:
+      - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml
+    command:
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
+    ports:
+      - "9093:9093"
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+    volumes:
+      - grafana-data:/var/lib/grafana
+
+volumes:
+    grafana-data:
+
 ```
 
 ### 4. Start the Monitoring Stack
@@ -101,7 +157,7 @@ receivers:
   - name: 'slack-notifications'
     slack_configs:
       - send_resolved: true
-        channel: '#sunny'
+        channel: '#NAME'
         api_url: 'https://hooks.slack.com/services/YOUR_SLACK_WEBHOOK_URL'
 ```
 
@@ -116,8 +172,6 @@ This setup ensures that your Nginx server is continuously monitored, and any dow
 
 ---
 
-**Maintainer:** Shourya
-
-For any issues, please open a GitHub issue.
+**Maintainer:** Shourya Yadav
 
 
