@@ -1,4 +1,4 @@
-### Nginx Monitoring with Prometheus, Grafana, and Alertmanager
+# Nginx Monitoring with Prometheus, Grafana, and Alertmanager
 
 ## Overview
 This setup provides real-time monitoring for an Nginx server using `nginx_exporter`, Prometheus, and Grafana. It also includes Alertmanager for sending notifications to Slack when Nginx or the EC2 instance goes down.
