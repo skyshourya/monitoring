@@ -1,5 +1,4 @@
 # monitoring
-Nginx Monitoring with Prometheus, Grafana, and Alertmanager
 
 # Nginx Monitoring with Prometheus, Grafana, and Alertmanager
 
